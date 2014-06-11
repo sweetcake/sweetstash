@@ -19,7 +19,7 @@ namespace Game
 			Application.targetFrameRate = 60;
 			ball = transform.FindChild("Ball").gameObject.GetComponent<Ball>();
 			road = GameObject.Find("Road").GetComponent<Road>();
-			road.Init();
+			road.Populate();
 		}
 
 		private int frames = 0;

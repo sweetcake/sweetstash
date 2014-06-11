@@ -12,7 +12,7 @@ namespace Game
 
 		private Rigidbody myRigidBody;
 		private Transform myTransform;
-		private BallSteeringTransform ballSteeringTransform;
+		private BallSteeringTransform ballSteeringTransform; 
 
 		private bool activated = false;
 		private bool alive = true;

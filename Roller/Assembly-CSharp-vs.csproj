@@ -191,6 +191,7 @@
      <Compile Include="Assets\Scripts\Game\Road\Road.cs" />
      <Compile Include="Assets\Scripts\Game\Road\RoadConnector.cs" />
      <Compile Include="Assets\Scripts\Game\Road\RoadSegment.cs" />
+     <Compile Include="Assets\Scripts\Game\Road\SpecialConnectors\RotatingCylinder.cs" />
      <Compile Include="Assets\Scripts\Game\UI\HUD.cs" />
      <Compile Include="Assets\SuperSplinesPro\Scripts\Animation\SplineAnimator.cs" />
      <Compile Include="Assets\SuperSplinesPro\Scripts\Animation\SplineAnimatorClosestPoint.cs" />

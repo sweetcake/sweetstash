@@ -6,14 +6,19 @@ namespace Game
 	public enum ConnectorTypes
 	{
 		SmallConnector,
+		SmallDropoffConnector,
 		MediumConnector,
+		MediumDropoffConnector,
 		LargeConnector,
+		LargeDropoffConnector,
 		SmallToLargeConnector,
 		SmallToMediumConnector,
 		MediumToSmallConnector,
 		MediumToLargeConnector,
 		LargeToSmallConnector,
-		LargeToMediumConnector
+		LargeToMediumConnector,
+		LargeRotatingCylinderConnector,
+		LargeSplitConnector
 	}
 
 	// Used by connectors
@@ -29,14 +34,23 @@ namespace Game
 		public int SegmentCount = 100;
 		public int TargetSegmentLength = 25;
 
+		public ConnectorTypes TestConnector = ConnectorTypes.LargeRotatingCylinderConnector;
+		public bool UseTestConnector = false;
+
 		public Transform StartPoint;
 		public List<RoadConnectorData> ConnectorData;
 
 		// Quick lookups. Filled in Awake()
 		private Dictionary<ConnectorTypes, RoadWidths> connectorStartWidthMap = new Dictionary<ConnectorTypes, RoadWidths>();
 		private Dictionary<ConnectorTypes, RoadWidths> connectorEndWidthMap = new Dictionary<ConnectorTypes, RoadWidths>();
-		private Dictionary<RoadWidths, List<ConnectorTypes>> roadWidthToConnectorStartMap = new Dictionary<RoadWidths, List<ConnectorTypes>>();
-		private Dictionary<RoadWidths, List<ConnectorTypes>> roadWidthToConnectorEndMap = new Dictionary<RoadWidths, List<ConnectorTypes>>();
+		private Dictionary<RoadWidths, List<RoadConnectorData>> roadWidthToConnectorStartMap = new Dictionary<RoadWidths, List<RoadConnectorData>>();
+		private Dictionary<RoadWidths, List<RoadConnectorData>> roadWidthToConnectorEndMap = new Dictionary<RoadWidths, List<RoadConnectorData>>();
+
+		private List<RoadConnector> connectors;
+		private List<RoadSegment> segments;
+
+		// Helps add variety to our connector types
+		private Dictionary<ConnectorTypes, bool> usedTypes = new Dictionary<ConnectorTypes, bool>();
 
 		/// <summary>
 		/// Initialization
@@ -68,26 +82,26 @@ namespace Game
 				// Initialize list for this width
 				if(!roadWidthToConnectorStartMap.ContainsKey(data.StartRoadWidth))
 				{
-					roadWidthToConnectorStartMap.Add(data.StartRoadWidth, new List<ConnectorTypes>());
+					roadWidthToConnectorStartMap.Add(data.StartRoadWidth, new List<RoadConnectorData>());
 				}
 				
 				// Add connector type if we don't have it already
-				if(!roadWidthToConnectorStartMap[data.StartRoadWidth].Contains(data.ConnectorType))
+				if(!roadWidthToConnectorStartMap[data.StartRoadWidth].Contains(data))
 				{
-					roadWidthToConnectorStartMap[data.StartRoadWidth].Add(data.ConnectorType);
+					roadWidthToConnectorStartMap[data.StartRoadWidth].Add(data);
 				}
 				
 				
 				// Initialize list for this end width
 				if(!roadWidthToConnectorEndMap.ContainsKey(data.EndRoadWidth))
 				{
-					roadWidthToConnectorEndMap.Add(data.EndRoadWidth, new List<ConnectorTypes>());
+					roadWidthToConnectorEndMap.Add(data.EndRoadWidth, new List<RoadConnectorData>());
 				}
 				
 				// Add connector type if we don't have it already
-				if(!roadWidthToConnectorEndMap[data.StartRoadWidth].Contains(data.ConnectorType))
+				if(!roadWidthToConnectorEndMap[data.StartRoadWidth].Contains(data))
 				{
-					roadWidthToConnectorEndMap[data.StartRoadWidth].Add(data.ConnectorType);
+					roadWidthToConnectorEndMap[data.StartRoadWidth].Add(data);
 				}
 			}
 		}
@@ -108,6 +122,8 @@ namespace Game
 			{
 				ObjectManager.Instance.LoadObject(GetConnectorPath(connectorType));
 			}
+
+			ObjectManager.Instance.LoadObject("Game/Perils/Bumper");
 		}
 
 		/// <summary>
@@ -115,22 +131,56 @@ namespace Game
 		/// </summary>
 		public virtual void Populate()
 		{
-			// Randomly create our first connector
-			RoadConnector lastConnector = CreateConnector(ConnectorTypes.LargeConnector);//GetRandomConnectorType());
+			Cleanup();
+
+			// Instantiate connector and segment containers
+			connectors = new List<RoadConnector>();
+			segments = new List<RoadSegment>();
+
+			// Determine if we are using a test connector
+			//ConnectorTypes startingConnector = UseTestConnector ? TestConnector : ConnectorTypes.LargeConnector;
+
+			RoadConnector lastConnector = CreateConnector(ConnectorTypes.LargeConnector);
 			lastConnector.transform.parent = transform;
 			lastConnector.transform.position = Vector3.zero;
 			lastConnector.name += "_0";
+			connectors.Add(lastConnector);
 
 			// Add two major chunks
 			for(int i = 0; i < SegmentCount; ++i)
 			{
 				RoadSegment segment = CreateRoad(GetRoadWidthForConnectorEnd(lastConnector.Type));
+				segments.Add(segment);
 				segment.transform.parent = transform;
 				RoadConnector nextConnector = CreateConnector(GetRandomConnectorStartForRoadWidth(segment.Width));
+				connectors.Add(nextConnector);
 				nextConnector.name += "_" + (i + 1).ToString();
 				nextConnector.transform.parent = transform;
 				segment.Populate(TargetSegmentLength, lastConnector, nextConnector, i);
 				lastConnector = nextConnector;
+			}
+		}
+
+		/// <summary>
+		/// Cleanup this instance.
+		/// </summary>
+		private void Cleanup()
+		{
+			if(connectors != null)
+			{
+				foreach(RoadConnector connector in connectors)
+				{
+					Destroy(connector.gameObject);
+				}
+				connectors = null;
+			}
+			if(segments != null)
+			{
+				foreach(RoadSegment segment in segments)
+				{
+					Destroy(segment.gameObject);
+				}
+				segments = null;
 			}
 		}
 
@@ -209,13 +259,20 @@ namespace Game
 		/// <param name="roadWidth">Road width.</param>
 		private ConnectorTypes GetRandomConnectorStartForRoadWidth(RoadWidths roadWidth)
 		{
+			if(UseTestConnector)
+			{
+				return TestConnector;
+			}
+
 			if(roadWidthToConnectorStartMap.ContainsKey(roadWidth) && roadWidthToConnectorStartMap[roadWidth].Count > 0)
 			{
-				return roadWidthToConnectorStartMap[roadWidth][Random.Range(0, roadWidthToConnectorStartMap[roadWidth].Count)];
+				ConnectorTypes type = GetRandomConnectorData(roadWidthToConnectorStartMap[roadWidth]).ConnectorType;
+				usedTypes.Add(type, true);
+				return type;
 			}
 			return ConnectorTypes.MediumConnector;
 		}
-
+		
 		/// <summary>
 		/// Gets a random connector type that ends at the given width
 		/// </summary>
@@ -223,21 +280,70 @@ namespace Game
 		/// <param name="roadWidth">Road width.</param>
 		private ConnectorTypes GetRandomConnectorEndForRoadWidth(RoadWidths roadWidth)
 		{
+			if(UseTestConnector)
+			{
+				return TestConnector;
+			}
+
 			if(roadWidthToConnectorEndMap.ContainsKey(roadWidth) && roadWidthToConnectorEndMap[roadWidth].Count > 0)
 			{
-				return roadWidthToConnectorEndMap[roadWidth][Random.Range(0, roadWidthToConnectorEndMap[roadWidth].Count)];
+				ConnectorTypes type = GetRandomConnectorData(roadWidthToConnectorEndMap[roadWidth]).ConnectorType;
+				usedTypes.Add(type, true);
+				return type;
 			}
 			return ConnectorTypes.MediumConnector;
 		}
 
 		/// <summary>
-		/// Gets the random connector.
+		/// Gets the random connector data.
 		/// </summary>
-		/// <returns>The random connector.</returns>
-		private ConnectorTypes GetRandomConnectorType()
+		/// <returns>The random connector data.</returns>
+		/// <param name="roadConnectorList">Road connector list.</param>
+		public RoadConnectorData GetRandomConnectorData(List<RoadConnectorData> roadConnectorList)
 		{
-			System.Array types = System.Enum.GetValues(typeof(ConnectorTypes));
-			return (ConnectorTypes)types.GetValue(Random.Range(0, types.Length));
+			List<RoadConnectorData> usableList = new List<RoadConnectorData>();
+			float totalWeight = 0;
+			foreach(RoadConnectorData data in roadConnectorList)
+			{
+				if(!usedTypes.ContainsKey(data.ConnectorType))
+				{
+					totalWeight += data.SpawnWeighting;
+					usableList.Add(data);
+				}
+			}
+
+			// We have used all the available ones, go clean up the list
+			if(usableList.Count == 0 || totalWeight <= Mathf.Epsilon)
+			{
+				usedTypes.Clear();
+				usableList = roadConnectorList;
+			}
+
+			totalWeight = 0;
+			foreach(RoadConnectorData data in usableList)
+			{
+				totalWeight += data.SpawnWeighting;
+			}
+			
+			float random = Random.Range(0.0f, totalWeight);
+			
+			int index = -1;
+			for(int i = 0; i< usableList.Count; ++i) 
+			{
+				if(random <= usableList[i].SpawnWeighting) 
+				{ 
+					index = i; 
+					break; 
+				}
+				random -= usableList[i].SpawnWeighting;
+			}
+			
+			if(index == -1) 
+			{
+				index = usableList.Count - 1;
+			}
+			
+			return usableList[index];
 		}
 	}
 
@@ -247,6 +353,7 @@ namespace Game
 		public ConnectorTypes ConnectorType;
 		public RoadWidths StartRoadWidth = RoadWidths.SmallRoad;
 		public RoadWidths EndRoadWidth = RoadWidths.SmallRoad;
+		public int SpawnWeighting = 100;
 	}
 }
 

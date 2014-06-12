@@ -38,6 +38,14 @@ namespace Game
 			}
 		}
 
+		public void OnCreateNewTrack()
+		{
+			if(game != null)
+			{
+				game.CreateNewTrack();
+			}
+		}
+
 		public void OnPause()
 		{
 			if(game != null)

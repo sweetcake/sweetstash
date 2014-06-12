@@ -1,4 +1,5 @@
 using UnityEngine;
+using Core;
 namespace Game
 {
 	public class RoadSegment : BaseSplineRoad
@@ -60,6 +61,41 @@ namespace Game
 
 			// Update the road
 			UpdateRoad();
+
+			AddPerils();
+		}
+
+		/// <summary>
+		/// Adds the perils.
+		/// </summary>
+		private void AddPerils()
+		{
+			// Lets not put them in the small roads for now
+			if(Width != RoadWidths.LargeRoad)
+			{
+				return;
+			}
+
+			int side = 0;
+			float increment = 0.2f;
+			for(float i = 0; i < 1.0f; i += increment)
+			{
+				GameObject bumper = ObjectManager.Instance.GetLoadedGameObject("Game/Perils/Bumper");
+				bumper.transform.parent = transform;
+				Vector3 position = Spline.GetPositionOnSpline(i);
+				//position += Spline.GetNormalToSpline(i) * 0.5f;
+
+				// Ensure that we are on the edges
+				Vector3 right = Vector3.right;
+				if(i < 1.0f && (i + increment) < 1.0f)
+				{
+					// Calculate the forward vector
+					Vector3 forward = (Spline.GetPositionOnSpline(i + increment) - position).normalized;
+					right = Vector3.Cross(forward, Vector3.up);
+				}
+				position += right * ((side++ % 2) == 0 ? -2 : 2);
+				bumper.transform.position = position;
+			}
 		}
 
 		/// <summary>

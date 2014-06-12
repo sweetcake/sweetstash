@@ -34,7 +34,6 @@ namespace Game
 			else if(ball.Alive)
 			{
 				gameTime += Time.deltaTime;
-				//distance = road.Spline.ConvertNormalizedParameterToDistance(road.Spline.GetClosestPointParam(ball.transform.position, 5));
 			}
 
 			time += Time.deltaTime;
@@ -45,6 +44,12 @@ namespace Game
 				frames = 0;
 				time = 0;
 			}
+		}
+
+		public void CreateNewTrack()
+		{
+			road.Populate();
+			Restart();
 		}
 
 		public void Restart()

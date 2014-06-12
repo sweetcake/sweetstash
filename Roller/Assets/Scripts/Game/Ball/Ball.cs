@@ -4,6 +4,8 @@ namespace Game
 {
 	public class Ball : MonoBehaviour
 	{
+		public float BumperForceMagnitude = 10.0f;
+
 		public delegate void DeathDelegate();
 		public event DeathDelegate DeathCallback;
 
@@ -76,6 +78,13 @@ namespace Game
 			if(collision.gameObject.tag == "Road")
 			{
 				leftRoad = false;
+			}
+			else if(collision.gameObject.tag == "Bumper")
+			{
+				// Add a reflective force
+				Vector3 forceDirection = (myTransform.position - collision.gameObject.transform.position).normalized;			
+				forceDirection.z = 0.0f;
+				myRigidBody.AddForce(forceDirection * BumperForceMagnitude);
 			}
 		}
 

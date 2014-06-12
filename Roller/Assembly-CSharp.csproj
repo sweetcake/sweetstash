@@ -174,12 +174,14 @@
      <Compile Include="Assets\NGUI\Scripts\UI\UIViewport.cs" />
      <Compile Include="Assets\Scripts\Core\Managers\ObjectManager.cs" />
      <Compile Include="Assets\Scripts\Core\Misc\PoolableObject.cs" />
+     <Compile Include="Assets\Scripts\Core\Misc\TouchTracker.cs" />
      <Compile Include="Assets\Scripts\Core\Utils\DateUtils.cs" />
      <Compile Include="Assets\Scripts\Core\Utils\EnumUtils.cs" />
      <Compile Include="Assets\Scripts\Core\Utils\MathUtils.cs" />
      <Compile Include="Assets\Scripts\Game\Ball\Ball.cs" />
      <Compile Include="Assets\Scripts\Game\Ball\BallSteeringTransform.cs" />
      <Compile Include="Assets\Scripts\Game\Camera\SmoothFollow.cs" />
+     <Compile Include="Assets\Scripts\Game\Camera\SmoothZFollow.cs" />
      <Compile Include="Assets\Scripts\Game\Game.cs" />
      <Compile Include="Assets\Scripts\Game\Road\BaseSplineRoad.cs" />
      <Compile Include="Assets\Scripts\Game\Road\BranchingSplineRoad.cs" />

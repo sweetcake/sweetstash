@@ -4,7 +4,7 @@
     <Files>
       <File FileName="Assets/Scripts/Game/Ball/Ball.cs" Line="5" Column="2" />
       <File FileName="Assets/Scripts/Game/Ball/BallSteeringTransform.cs" Line="14" Column="3" />
-      <File FileName="Assets/Scripts/Game/Camera/SmoothFollow.cs" Line="4" Column="2" />
+      <File FileName="Assets/Scripts/Game/Camera/SmoothFollow.cs" Line="4" Column="27" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">

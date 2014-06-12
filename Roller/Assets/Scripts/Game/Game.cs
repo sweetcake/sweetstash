@@ -46,6 +46,11 @@ namespace Game
 			}
 		}
 
+		public void SwapInputType()
+		{
+			ball.UseSwipeInput = !ball.UseSwipeInput;
+		}
+
 		public void CreateNewTrack()
 		{
 			road.Populate();
@@ -65,6 +70,7 @@ namespace Game
 			{
 				ball.InitTransform(transform);
 			}
+			road.Reset();
 			ball.Activate();
 		}
 

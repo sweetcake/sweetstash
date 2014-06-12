@@ -1,5 +1,6 @@
 using UnityEngine;
 using Core;
+using System.Collections.Generic;
 namespace Game
 {
 	public class RoadSegment : BaseSplineRoad
@@ -15,6 +16,7 @@ namespace Game
 		public float MaxVerticalOffset = 5.0f;
 
 		public RoadWidths Width;
+		List<GameObject> collectables = new List<GameObject>();
 
 		public void Populate(float targetLength, RoadConnector start, RoadConnector end, int index)
 		{
@@ -63,6 +65,23 @@ namespace Game
 			UpdateRoad();
 
 			AddPerils();
+
+			AddCollectables();
+		}
+
+		public void Reset()
+		{
+			foreach(GameObject collectable in collectables)
+			{
+				if(!collectable.activeSelf)
+				{
+					collectable.SetActive(true);
+				}
+				else
+				{
+					break;
+				}
+			}
 		}
 
 		/// <summary>
@@ -95,6 +114,25 @@ namespace Game
 				}
 				position += right * ((side++ % 2) == 0 ? -2 : 2);
 				bumper.transform.position = position;
+			}
+		}
+
+		private void AddCollectables()
+		{
+			float quarterWidth = Mesh.xyScale.x * 0.25f;
+			for(int i = 0; i < Spline.splineNodesArray.Count; ++i)
+			{
+				if(i == 0 || i == Spline.splineNodesArray.Count - 1)
+				{
+					continue;
+				}
+				SplineNode node = Spline.splineNodesArray[i];
+				GameObject collectable = ObjectManager.Instance.GetLoadedGameObject("Game/Collectables/Collectable");
+				Vector3 position = node.transform.position + Vector3.up;
+				position.x += Random.Range(-quarterWidth, quarterWidth);
+				collectable.transform.position = position;
+				collectable.transform.parent = transform;
+				collectables.Add(collectable);
 			}
 		}
 

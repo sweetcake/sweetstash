@@ -107,6 +107,14 @@ namespace Game
 			}
 		}
 
+		public void Reset()
+		{
+			foreach(RoadSegment segment in segments)
+			{
+				segment.Reset();
+			}
+		}
+
 		/// <summary>
 		/// Loads assets that we will use later
 		/// </summary>
@@ -125,6 +133,7 @@ namespace Game
 			}
 
 			ObjectManager.Instance.LoadObject("Game/Perils/Bumper");
+			ObjectManager.Instance.LoadObject("Game/Collectables/Collectable");
 		}
 
 		/// <summary>

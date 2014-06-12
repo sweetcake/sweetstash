@@ -30,6 +30,15 @@ namespace Game
 			}
 		}
 
+		public void OnSwapInputType()
+		{
+			if(game != null)
+			{
+				game.SwapInputType();
+			}
+		}
+
+
 		public void OnRestart()
 		{
 			if(game != null)

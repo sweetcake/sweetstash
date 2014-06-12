@@ -1,7 +1,7 @@
 using UnityEngine;
 namespace Game
 {
-	public class SmoothFollowVelocity : MonoBehaviour
+	public class SmoothFollow : MonoBehaviour
 	{
 		public Transform Target;				
 		public float Distance = 10.0f;

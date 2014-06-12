@@ -18,7 +18,8 @@ namespace Game
 		LargeToSmallConnector,
 		LargeToMediumConnector,
 		LargeRotatingCylinderConnector,
-		LargeSplitConnector
+		LargeSplitConnector,
+		LargeToLargeTightrope
 	}
 
 	// Used by connectors

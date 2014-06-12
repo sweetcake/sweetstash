@@ -188,6 +188,7 @@
      <Compile Include="Assets\Scripts\Game\Road\MeshModifiers\BranchingRoadMeshModifier.cs" />
      <Compile Include="Assets\Scripts\Game\Road\MeshModifiers\InterpolatedWidthMeshModifier.cs" />
      <Compile Include="Assets\Scripts\Game\Road\MeshModifiers\RoadMeshModifier.cs" />
+     <Compile Include="Assets\Scripts\Game\Road\MeshModifiers\TightRopeMeshModifier.cs" />
      <Compile Include="Assets\Scripts\Game\Road\Road.cs" />
      <Compile Include="Assets\Scripts\Game\Road\RoadConnector.cs" />
      <Compile Include="Assets\Scripts\Game\Road\RoadSegment.cs" />
